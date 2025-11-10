@@ -3,13 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة الامتحانات - متصلة</title>
+    <title>منصة الامتحانات</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    
     <style>
         :root {
             --primary: #4361ee;
@@ -80,24 +75,6 @@
         .logo-text {
             font-size: 22px;
             font-weight: bold;
-        }
-        
-        .connection-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            padding: 5px 10px;
-            border-radius: 20px;
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .connection-status.connected {
-            background-color: rgba(76, 201, 240, 0.3);
-        }
-        
-        .connection-status.disconnected {
-            background-color: rgba(230, 57, 70, 0.3);
         }
         
         .main-content {
@@ -606,16 +583,7 @@
             <div class="header">
                 <div class="logo">
                     <i class="fas fa-graduation-cap"></i>
-                    <div class="logo-text">منصة الامتحانات - متصلة</div>
-                </div>
-                <div class="header-buttons">
-                    <div id="connection-status" class="connection-status">
-                        <i class="fas fa-wifi"></i>
-                        <span>جاري الاتصال...</span>
-                    </div>
-                    <button id="admin-access-btn" class="btn btn-danger">
-                        <i class="fas fa-cog"></i> دخول المسؤول
-                    </button>
+                    <div class="logo-text">منصة الامتحانات</div>
                 </div>
             </div>
             
@@ -630,14 +598,8 @@
                         <h1>الامتحان الشامل علي يونت 1 ويونت 2</h1>
                         <h2>تنويه هام</h2>
                         <p class="welcome-text">
-                            اكتب اسمك ورقم تكون حافظه علشان تقدر تشوف اجاباتك وتشوف الاسئله اللي غلطت فيها  
-                            وهتقدر تشوفها بعد ما تخلص الامتحان ويتعلم المقالي  تدوس علي زرار نتيجتك الموجود جنب زرار بداء الاخبار وتكتب الرقم اللي سجلت بيه وانت داخل الامتحان
-                         لو المقالي اتعلم هيظهرلك درجتك النهائية وكل اسئلتك اللي جاوبتها في الامتحان 
+                            يصحح المقالي من قبل chat gpt دون تدخل منا تلقائيا 
                         </p>
-                        <div class="sync-info">
-                            <i class="fas fa-sync-alt"></i>
-                            <span>النتائج تظهر تلقائياً لدى المعلم بعد إنهاء الاختبار - لا حاجة لإرسالها يدوياً</span>
-                        </div>
                     </div>
                     
                     <div class="login-form">
@@ -649,16 +611,13 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="student-id"><i class="fas fa-id-card"></i> id </label>
+                            <label for="student-id"><i class="fas fa-id-card"></i> رقم الهوية:</label>
                             <input type="text" id="student-id" placeholder="أدخل رقمك هنا واحفظه علشان تقدر تعرف درجتك">
                         </div>
                         
                         <div class="btn-group">
                             <button id="start-exam-btn" class="btn btn-success">
                                 <i class="fas fa-play-circle"></i> بدء الاختبار
-                            </button>
-                            <button id="check-result-btn" class="btn">
-                                <i class="fas fa-search"></i> نتيجتك
                             </button>
                         </div>
                     </div>
@@ -744,125 +703,9 @@
                         </button>
                     </div>
                 </div>
-                
-                <!-- Waiting Page -->
-                <div id="waiting-page" class="page">
-                    <h1>تم تسليم الاختبار بنجاح</h1>
-                    
-                    <div class="waiting-message">
-                        <i class="fas fa-clock fa-3x" style="color: #f8961e; margin-bottom: 20px;"></i>
-                        <h2>جاري تصحيح الأسئلة المقالية</h2>
-                        <p>تم تصحيح الأسئلة الاختيارية بنجاح. علامتك في الأسئلة الاختيارية: <strong id="mcq-score-display">0</strong></p>
-                        <p>يتم حالياً تصحيح الأسئلة المقالية. يمكنك مراجعة نتيجتك وأخطائك بعد اكتمال التصحيح.</p>
-                        <p>شكراً لك على المشاركة في الاختبار.</p>
-                    </div>
-                    
-                    <div class="btn-group">
-                        <button id="back-to-welcome-from-waiting" class="btn">
-                            <i class="fas fa-home"></i> العودة إلى الصفحة الرئيسية
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Check Result Page -->
-                <div id="check-result-page" class="page">
-                    <h1>نتيجتك</h1>
-                    
-                    <div class="login-form">
-                        <h2 class="form-title">استعلام عن النتيجة</h2>
-                        
-                        <div class="form-group">
-                            <label for="check-student-id"><i class="fas fa-id-card"></i> id </label>
-                            <input type="text" id="check-student-id" placeholder=" أدخل رقم الامتحان هنا">
-                        </div>
-                        
-                        <div class="btn-group">
-                            <button id="check-result-query-btn" class="btn btn-success">
-                                <i class="fas fa-search"></i> استعلام عن النتيجة
-                            </button>
-                            <button id="back-to-welcome-from-check" class="btn">
-                                <i class="fas fa-home"></i> العودة
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div id="result-display" class="student-info-card hidden">
-                        <!-- Result will be displayed here -->
-                    </div>
-                </div>
-                
-                <!-- Admin Page -->
-                <div id="admin-page" class="page">
-                    <h1>لوحة تحكم المسؤول</h1>
-                    
-                    <div class="admin-controls">
-                        <button id="refresh-results-btn" class="btn">
-                            <i class="fas fa-sync-alt"></i> تحديث النتائج
-                        </button>
-                        <button id="grade-essays-btn" class="btn btn-warning">
-                            <i class="fas fa-edit"></i> تصحيح المقالي
-                        </button>
-                        <button id="back-to-admin-welcome" class="btn btn-danger">
-                            <i class="fas fa-sign-out-alt"></i> العودة
-                        </button>
-                    </div>
-                    
-                    <div class="sync-info">
-                        <i class="fas fa-info-circle"></i>
-                        <span>جميع نتائج الطلاب متزامنة تلقائياً مع قاعدة البيانات المركزية. أي تحديث يتم حفظه فوراً.</span>
-                    </div>
-                    
-                    <h3>نتائج الطلاب</h3>
-                    <table class="results-table">
-                        <thead>
-                            <tr>
-                                <th>الاسم</th>
-                                <th>رقم الهوية</th>
-                                <th>علامة الاختياري</th>
-                                <th>علامة المقالي</th>
-                                <th>العلامة النهائية</th>
-                                <th>حالة التصحيح</th>
-                                <th>التاريخ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-results-table">
-                            <!-- Student results will be populated here -->
-                        </tbody>
-                    </table>
-                    
-                    <div id="grade-essays-section" class="admin-panel hidden">
-                        <h3>تصحيح الأسئلة المقالية</h3>
-                        <div id="essays-to-grade-container">
-                            <!-- Essays to grade will be displayed here -->
-                        </div>
-                        <div class="btn-group">
-                            <button id="save-grades-btn" class="btn btn-success">
-                                <i class="fas fa-save"></i> حفظ التقديرات
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
-
-    <!-- Firebase Configuration -->
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyC4wG6jDq6Xq6Xq6Xq6Xq6Xq6Xq6Xq6Xq6Xq6",
-            authDomain: "exam-platform-12345.firebaseapp.com",
-            databaseURL: "https://exam-platform-12345-default-rtdb.firebaseio.com",
-            projectId: "exam-platform-12345",
-            storageBucket: "exam-platform-12345.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef1234567890abcdef"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-    </script>
 
     <script>
         // Exam data - 36 questions (31 MCQ + 5 Essay)
@@ -871,148 +714,169 @@
             mcqQuestions: [
                 {
                     id: 1,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "c1.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 2,
                     points: 1
                 },
                 {
                     id: 2,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "d2.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 3,
                     points: 1
                 },
                 {
                     id: 3,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "d3.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 3,
                     points: 1
                 },
                 {
                     id: 4,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "c4.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 2,
                     points: 1
                 },
                 {
                     id: 5,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "a5.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 0,
                     points: 1
                 },
                 {
                     id: 6,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "b6.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 1,
                     points: 1
                 },
                 {
                     id: 7,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "c7.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 2,
                     points: 1
                 },
                 {
                     id: 8,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "d8.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 3,
                     points: 1
                 },
                 {
                     id: 9,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "a9.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 0,
                     points: 1
                 },
                 {
                     id: 10,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "b10.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 1,
                     points: 1
                 },
                 {
                     id: 11,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "a11.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 0,
                     points: 1
                 },
                 {
                     id: 12,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "d12.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 3,
                     points: 1
                 },
                 {
                     id: 13,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "b13.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 1,
                     points: 1
                 },
                 {
                     id: 14,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "a14.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 0,
                     points: 1
                 },
                 {
                     id: 15,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "c15.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 2,
                     points: 1
                 },
                 {
                     id: 16,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "a16.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 0,
                     points: 1
                 },
                 {
                     id: 17,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "b17.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 1,
                     points: 1
                 },
                 {
                     id: 18,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "d18.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 3,
                     points: 1
                 },
                 {
                     id: 19,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "c19.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 2,
                     points: 1
                 },
                 {
                     id: 20,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "a20.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 0,
                     points: 2
                 },
                 {
                     id: 21,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "d21.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 3,
                     points: 2
                 }
@@ -1022,71 +886,81 @@
             mcq2PointQuestions: [
                 {
                     id: 22,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "a22.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 0,
                     points: 2
                 },
                 {
                     id: 23,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "c23.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 2,
                     points: 2
                 },
                 {
                     id: 24,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "b24.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 1,
                     points: 2
                 },
                 {
                     id: 25,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "a25.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 0,
                     points: 2
                 },
                 {
                     id: 26,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "b26.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 1,
                     points: 2
                 },
                 {
                     id: 27,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "b27.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 1,
                     points: 2
                 },
                 {
                     id: 28,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "c28.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 2,
                     points: 2
                 },
                 {
                     id: 29,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "a29.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 0,
                     points: 2
                 },
                 {
                     id: 30,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "d30.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 3,
                     points: 2
                 },
                 {
                     id: 31,
+                    text: "اختر الإجابة الصحيحة من بين الخيارات التالية:",
                     image: "a31.jpg",
-                    options: ["الجواب الأول", "الجواب الثاني", "الجواب الثالث", "الجواب الرابع"],
+                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswer: 0,
                     points: 2
                 }
@@ -1096,29 +970,29 @@
             essayQuestions: [
                 {
                     id: 32,
-                    text: "سؤال المقال الأول",
-                    image: "q32.jpg", // إضافة صورة للسؤال المقالي
+                    text: "اكتب فقرة قصيرة عن أهمية التعليم في حياتنا:",
+                    image: "q32.jpg",
                     correctAnswer: "إجابة نموذجية لسؤال المقال الأول",
                     points: 1
                 },
                 {
                     id: 33,
-                    text: "سؤال المقال الثاني",
-                    image: "q33.jpg", // إضافة صورة للسؤال المقالي
+                    text: "ما هي فوائد القراءة اليومية؟",
+                    image: "q33.jpg",
                     correctAnswer: "إجابة نموذجية لسؤال المقال الثاني",
                     points: 1
                 },
                 {
                     id: 34,
-                    text: "سؤال المقال الثالث",
-                    image: "q34.jpg", // إضافة صورة للسؤال المقالي
+                    text: "اشرح أهمية التكنولوجيا في العصر الحديث:",
+                    image: "q34.jpg",
                     correctAnswer: "إجابة نموذجية لسؤال المقال الثالث",
                     points: 1
                 },
                 {
                     id: 35,
-                    text: "سؤال المقال الرابع",
-                    image: "q35.jpg", // إضافة صورة للسؤال المقالي
+                    text: "ما هي مميزات العمل الجماعي؟",
+                    image: "q35.jpg",
                     correctAnswer: "إجابة نموذجية لسؤال المقال الرابع",
                     points: 1
                 }
@@ -1127,15 +1001,14 @@
             // Final essay question (3 points)
             finalEssay: {
                 id: 36,
-                text: "سؤال المقال النهائي",
-                image: "q36.jpg", // إضافة صورة للسؤال المقالي النهائي
+                text: "اكتب موضوعاً تعبيرياً عن دور الشباب في بناء المجتمع:",
+                image: "q36.jpg",
                 correctAnswer: "إجابة نموذجية لسؤال المقال النهائي",
                 points: 3
             }
         };
 
-        // Student data storage
-        let students = [];
+        // Current student
         let currentStudent = null;
         
         // Exam timer
@@ -1146,22 +1019,11 @@
         const welcomePage = document.getElementById('welcome-page');
         const examPage = document.getElementById('exam-page');
         const resultsPage = document.getElementById('results-page');
-        const waitingPage = document.getElementById('waiting-page');
-        const checkResultPage = document.getElementById('check-result-page');
-        const adminPage = document.getElementById('admin-page');
-        const connectionStatus = document.getElementById('connection-status');
         
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Firebase connection
-            initializeFirebase();
-            
-            // Header buttons
-            document.getElementById('admin-access-btn').addEventListener('click', showAdminLogin);
-            
             // Welcome page buttons
             document.getElementById('start-exam-btn').addEventListener('click', startExam);
-            document.getElementById('check-result-btn').addEventListener('click', showCheckResult);
             
             // Exam page
             document.getElementById('exam-form').addEventListener('submit', submitExam);
@@ -1171,133 +1033,12 @@
                 showPage('welcome-page');
             });
             
-            // Waiting page
-            document.getElementById('back-to-welcome-from-waiting').addEventListener('click', function() {
-                showPage('welcome-page');
-            });
-            
-            // Check result page
-            document.getElementById('check-result-query-btn').addEventListener('click', checkResult);
-            document.getElementById('back-to-welcome-from-check').addEventListener('click', function() {
-                showPage('welcome-page');
-            });
-            
-            // Admin page
-            document.getElementById('refresh-results-btn').addEventListener('click', refreshAdminResults);
-            document.getElementById('grade-essays-btn').addEventListener('click', toggleGradeEssays);
-            document.getElementById('back-to-admin-welcome').addEventListener('click', function() {
-                showPage('welcome-page');
-            });
-            document.getElementById('save-grades-btn').addEventListener('click', saveEssayGrades);
-            
             // Initialize exam questions
             generateExamQuestions();
             
-            // Prevent right-click (to discourage screenshot)
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                alert('غير مسموح بالتقاط الصور من الاختبار');
-                return false;
-            });
-            
-            // Detect attempts to take screenshots (basic detection)
-            document.addEventListener('keydown', function(e) {
-                if ((e.ctrlKey && e.key === 'PrintScreen') || e.key === 'PrintScreen') {
-                    handleScreenshotAttempt();
-                }
-            });
-            
             // Update progress bar as user answers questions
             document.addEventListener('change', updateProgressBar);
-            
-            // Auto-save student answers every 30 seconds
-            setInterval(autoSaveStudentAnswers, 30000);
         });
-        
-        // Initialize Firebase and load data
-        function initializeFirebase() {
-            updateConnectionStatus('جاري الاتصال...', 'disconnected');
-            
-            // Listen for connection state changes
-            const connectedRef = firebase.database().ref(".info/connected");
-            connectedRef.on("value", function(snap) {
-                if (snap.val() === true) {
-                    updateConnectionStatus('متصل', 'connected');
-                    loadStudentsFromFirebase();
-                } else {
-                    updateConnectionStatus('غير متصل', 'disconnected');
-                }
-            });
-        }
-        
-        // Update connection status display
-        function updateConnectionStatus(text, status) {
-            connectionStatus.innerHTML = `<i class="fas fa-wifi"></i> <span>${text}</span>`;
-            connectionStatus.className = `connection-status ${status}`;
-        }
-        
-        // Load students from Firebase
-        function loadStudentsFromFirebase() {
-            const studentsRef = database.ref('students');
-            
-            studentsRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                students = data ? Object.values(data) : [];
-                
-                // If we're on admin page, refresh the results
-                if (document.getElementById('admin-page').classList.contains('active')) {
-                    refreshAdminResults();
-                }
-                
-                showNotification('تم تحديث البيانات من السحابة');
-            });
-        }
-        
-        // Save students to Firebase
-        function saveStudentsToFirebase() {
-            const studentsRef = database.ref('students');
-            studentsRef.set(students)
-                .then(() => {
-                    console.log('تم حفظ البيانات في Firebase');
-                })
-                .catch((error) => {
-                    console.error('خطأ في حفظ البيانات:', error);
-                    // Fallback to localStorage if Firebase fails
-                    localStorage.setItem('examStudents', JSON.stringify(students));
-                });
-        }
-        
-        // Save student to Firebase (individual)
-        function saveStudentToFirebase(student) {
-            const studentRef = database.ref('students').child(student.id);
-            studentRef.set(student)
-                .then(() => {
-                    console.log('تم حفظ بيانات الطالب في Firebase');
-                })
-                .catch((error) => {
-                    console.error('خطأ في حفظ بيانات الطالب:', error);
-                });
-        }
-        
-        // Show notification
-        function showNotification(message) {
-            // Remove existing notification
-            const existingNotification = document.querySelector('.notification');
-            if (existingNotification) {
-                existingNotification.remove();
-            }
-            
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
-            
-            document.body.appendChild(notification);
-            
-            // Remove notification after 3 seconds
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
         
         // Start exam function
         function startExam() {
@@ -1309,101 +1050,23 @@
                 return;
             }
             
-            // Check if student exists
-            let student = students.find(s => s.id === id);
-            
-            if (student && student.examCompleted) {
-                alert('لقد أكملت هذا الاختبار مسبقاً. لا يمكنك إعادة الاختبار بنفس رقم الهوية.');
-                return;
-            } else if (student && !student.examCompleted) {
-                // إذا كان الطالب بدأ الاختبار ولم يكمله
-                const confirmRestart = confirm('لقد بدأت هذا الاختبار مسبقاً ولم تكتمله. هل تريد متابعة الاختبار؟');
-                
-                if (confirmRestart) {
-                    currentStudent = student;
-                    loadStudentProgress();
-                } else {
-                    return;
-                }
-            } else {
-                // طالب جديد
-                currentStudent = createNewStudent(name, id);
-                students.push(currentStudent);
-                saveStudentsToFirebase();
-            }
-            
-            // Start exam
-            showPage('exam-page');
-            startExamTimer();
-            updateProgressBar();
-        }
-        
-        // Create new student
-        function createNewStudent(name, id) {
-            return {
+            // Create new student
+            currentStudent = {
                 name: name,
                 id: id,
-                examStarted: new Date().toISOString(),
-                examCompleted: false,
+                examStarted: new Date(),
                 answers: {
                     mcq: Array(examData.mcqQuestions.length).fill(null),
                     mcq2Point: Array(examData.mcq2PointQuestions.length).fill(null),
                     essay: Array(examData.essayQuestions.length).fill(''),
                     finalEssay: ''
-                },
-                mcqScore: 0,
-                essayScore: 0,
-                totalScore: 0,
-                essayGrades: Array(examData.essayQuestions.length + 1).fill(null), // +1 for final essay
-                essayGraded: false
+                }
             };
-        }
-        
-        // Show check result page
-        function showCheckResult() {
-            showPage('check-result-page');
-            document.getElementById('check-student-id').value = '';
-            document.getElementById('result-display').classList.add('hidden');
-        }
-        
-        // Check result function
-        function checkResult() {
-            const id = document.getElementById('check-student-id').value.trim();
             
-            if (!id) {
-                alert('الرجاء إدخال رقم الهوية.');
-                return;
-            }
-            
-            const student = students.find(s => s.id === id);
-            
-            if (!student) {
-                alert('لا توجد نتائج مسجلة لهذا الطالب.');
-                return;
-            }
-            
-            if (!student.examCompleted) {
-                alert('لم تكمل الاختبار بعد.');
-                return;
-            }
-            
-            if (!student.essayGraded) {
-                alert('لم يتم تصحيح الأسئلة المقالية بشكل كامل بعد.');
-                return;
-            }
-            
-            showResults(student);
-        }
-        
-        // Show admin login
-        function showAdminLogin() {
-            const password = prompt('أدخل كلمة مرور المسؤول:');
-            if (password === '4620') {
-                showPage('admin-page');
-                refreshAdminResults();
-            } else {
-                alert('كلمة المرور غير صحيحة.');
-            }
+            // Start exam
+            showPage('exam-page');
+            startExamTimer();
+            updateProgressBar();
         }
         
         // Generate exam questions in the DOM
@@ -1425,7 +1088,7 @@
                     <div class="question-image">
                         <img src="${question.image}" alt="صورة السؤال ${index + 1}" onerror="this.style.display='none'">
                     </div>
-                    <p>${question.text || `سؤال متعدد الخيارات ${index + 1}`}</p>
+                    <p><strong>${question.text}</strong></p>
                     <div class="mcq-options">
                         ${question.options.map((option, optIndex) => `
                             <div class="mcq-option" data-question="${question.id}" data-option="${optIndex}">
@@ -1452,7 +1115,7 @@
                     <div class="question-image">
                         <img src="${question.image}" alt="صورة السؤال ${index + 22}" onerror="this.style.display='none'">
                     </div>
-                    <p>${question.text || `سؤال متعدد الخيارات (علامتان) ${index + 1}`}</p>
+                    <p><strong>${question.text}</strong></p>
                     <div class="mcq-options">
                         ${question.options.map((option, optIndex) => `
                             <div class="mcq-option" data-question="${question.id}" data-option="${optIndex}">
@@ -1481,7 +1144,7 @@
                         <img src="${question.image}" alt="صورة السؤال المقالي ${index + 32}" onerror="this.style.display='none'">
                     </div>
                     ` : ''}
-                    <p>${question.text}</p>
+                    <p><strong>${question.text}</strong></p>
                     <textarea id="essay-${question.id}" rows="4" placeholder="اكتب إجابتك هنا..."></textarea>
                 `;
                 essayContainer.appendChild(questionDiv);
@@ -1500,7 +1163,7 @@
                     <img src="${examData.finalEssay.image}" alt="صورة السؤال المقالي النهائي" onerror="this.style.display='none'">
                 </div>
                 ` : ''}
-                <p>${examData.finalEssay.text}</p>
+                <p><strong>${examData.finalEssay.text}</strong></p>
                 <textarea id="essay-final" rows="6" placeholder="اكتب إجابتك هنا..."></textarea>
             `;
             finalEssayContainer.appendChild(finalEssayDiv);
@@ -1525,21 +1188,6 @@
                     
                     // Trigger change event for progress bar update
                     radio.dispatchEvent(new Event('change', { bubbles: true }));
-                    
-                    // Auto-save answer
-                    if (currentStudent) {
-                        saveStudentAnswers();
-                    }
-                });
-            });
-            
-            // Add event listeners for essay textareas
-            document.querySelectorAll('textarea').forEach(textarea => {
-                textarea.addEventListener('input', function() {
-                    // Auto-save essay answers
-                    if (currentStudent) {
-                        saveStudentAnswers();
-                    }
                 });
             });
         }
@@ -1611,28 +1259,11 @@
             // Save student answers
             saveStudentAnswers();
             
-            // Calculate score
-            calculateScore();
-            
-            // Mark exam as completed
-            currentStudent.examCompleted = true;
-            currentStudent.examFinished = new Date().toISOString();
-            
-            // Update student data
-            const studentIndex = students.findIndex(s => s.id === currentStudent.id);
-            if (studentIndex !== -1) {
-                students[studentIndex] = currentStudent;
-                saveStudentToFirebase(currentStudent);
-            }
+            // Calculate score and show results
+            calculateScoreAndShowResults();
             
             // Stop timer
             clearInterval(examTimer);
-            
-            // Show waiting page instead of results
-            showWaitingPage();
-            
-            // Show notification
-            showNotification('تم إرسال إجاباتك إلى قاعدة البيانات المركزية');
         }
         
         // Save student answers
@@ -1661,59 +1292,13 @@
             
             // Save final essay answer
             currentStudent.answers.finalEssay = document.getElementById('essay-final').value;
-            
-            // Update student data in storage
-            const studentIndex = students.findIndex(s => s.id === currentStudent.id);
-            if (studentIndex !== -1) {
-                students[studentIndex] = currentStudent;
-                saveStudentToFirebase(currentStudent);
-            }
         }
         
-        // Auto-save student answers
-        function autoSaveStudentAnswers() {
-            if (currentStudent && !currentStudent.examCompleted) {
-                saveStudentAnswers();
-                console.log('تم الحفظ التلقائي للإجابات');
-            }
-        }
-        
-        // Load student progress
-        function loadStudentProgress() {
-            // Load MCQ answers (1 point)
-            examData.mcqQuestions.forEach((question, index) => {
-                if (currentStudent.answers.mcq[index] !== null) {
-                    const radio = document.querySelector(`input[name="mcq-${question.id}"][value="${currentStudent.answers.mcq[index]}"]`);
-                    if (radio) {
-                        radio.checked = true;
-                        radio.closest('.mcq-option').classList.add('selected');
-                    }
-                }
-            });
-            
-            // Load 2-point MCQ answers
-            examData.mcq2PointQuestions.forEach((question, index) => {
-                if (currentStudent.answers.mcq2Point[index] !== null) {
-                    const radio = document.querySelector(`input[name="mcq2-${question.id}"][value="${currentStudent.answers.mcq2Point[index]}"]`);
-                    if (radio) {
-                        radio.checked = true;
-                        radio.closest('.mcq-option').classList.add('selected');
-                    }
-                }
-            });
-            
-            // Load essay answers
-            examData.essayQuestions.forEach((question, index) => {
-                document.getElementById(`essay-${question.id}`).value = currentStudent.answers.essay[index] || '';
-            });
-            
-            // Load final essay answer
-            document.getElementById('essay-final').value = currentStudent.answers.finalEssay || '';
-        }
-        
-        // Calculate student score
-        function calculateScore() {
+        // Calculate student score and show results
+        function calculateScoreAndShowResults() {
+            let totalScore = 0;
             let mcqScore = 0;
+            let essayScore = 0;
             
             // Calculate MCQ scores (1 point each)
             examData.mcqQuestions.forEach((question, index) => {
@@ -1729,24 +1314,27 @@
                 }
             });
             
-            // Essay scores are calculated separately by admin
-            currentStudent.mcqScore = mcqScore;
-            currentStudent.totalScore = mcqScore + (currentStudent.essayScore || 0);
-        }
-        
-        // Show waiting page after exam submission
-        function showWaitingPage() {
-            document.getElementById('mcq-score-display').textContent = currentStudent.mcqScore;
-            showPage('waiting-page');
+            // Give full marks for essay questions (as requested)
+            examData.essayQuestions.forEach((question) => {
+                essayScore += question.points;
+            });
+            
+            // Give full marks for final essay
+            essayScore += examData.finalEssay.points;
+            
+            totalScore = mcqScore + essayScore;
+            
+            // Show results
+            showResults(totalScore, mcqScore, essayScore);
         }
         
         // Show results
-        function showResults(student) {
-            document.getElementById('result-student-name').textContent = student.name;
-            document.getElementById('result-student-id').textContent = student.id;
-            document.getElementById('result-exam-date').textContent = new Date(student.examFinished).toLocaleDateString('ar-EG');
-            document.getElementById('result-score').textContent = student.totalScore;
-            document.getElementById('result-percentage').textContent = ((student.totalScore / 50) * 100).toFixed(2);
+        function showResults(totalScore, mcqScore, essayScore) {
+            document.getElementById('result-student-name').textContent = currentStudent.name;
+            document.getElementById('result-student-id').textContent = currentStudent.id;
+            document.getElementById('result-exam-date').textContent = new Date().toLocaleDateString('ar-EG');
+            document.getElementById('result-score').textContent = totalScore;
+            document.getElementById('result-percentage').textContent = ((totalScore / 50) * 100).toFixed(2) + '%';
             
             // Display all answers
             const answersContainer = document.getElementById('all-answers-container');
@@ -1756,7 +1344,10 @@
             examData.mcqQuestions.forEach((question, index) => {
                 const answerDiv = document.createElement('div');
                 answerDiv.className = 'question-container';
-                const isCorrect = student.answers.mcq[index] === question.correctAnswer;
+                const isCorrect = currentStudent.answers.mcq[index] === question.correctAnswer;
+                const studentAnswer = currentStudent.answers.mcq[index] !== null ? 
+                    question.options[currentStudent.answers.mcq[index]] : 'لم تجب';
+                    
                 answerDiv.innerHTML = `
                     <div class="question-header">
                         <div class="question-number">${index + 1}</div>
@@ -1765,9 +1356,10 @@
                     <div class="question-image">
                         <img src="${question.image}" alt="صورة السؤال ${index + 1}" onerror="this.style.display='none'">
                     </div>
-                    <p><strong>السؤال:</strong> ${question.text || `سؤال متعدد الخيارات ${index + 1}`}</p>
-                    <p><strong>إجابتك:</strong> ${student.answers.mcq[index] !== null ? question.options[student.answers.mcq[index]] : 'لم تجب'}</p>
+                    <p><strong>السؤال:</strong> ${question.text}</p>
+                    <p><strong>إجابتك:</strong> ${studentAnswer}</p>
                     <p class="correct-answer"><strong>الإجابة الصحيحة:</strong> ${question.options[question.correctAnswer]}</p>
+                    ${!isCorrect ? `<p class="incorrect-answer"><strong>لقد خسرت:</strong> ${question.points} علامة</p>` : ''}
                 `;
                 answersContainer.appendChild(answerDiv);
             });
@@ -1776,7 +1368,10 @@
             examData.mcq2PointQuestions.forEach((question, index) => {
                 const answerDiv = document.createElement('div');
                 answerDiv.className = 'question-container';
-                const isCorrect = student.answers.mcq2Point[index] === question.correctAnswer;
+                const isCorrect = currentStudent.answers.mcq2Point[index] === question.correctAnswer;
+                const studentAnswer = currentStudent.answers.mcq2Point[index] !== null ? 
+                    question.options[currentStudent.answers.mcq2Point[index]] : 'لم تجب';
+                    
                 answerDiv.innerHTML = `
                     <div class="question-header">
                         <div class="question-number">${index + 22}</div>
@@ -1785,21 +1380,22 @@
                     <div class="question-image">
                         <img src="${question.image}" alt="صورة السؤال ${index + 22}" onerror="this.style.display='none'">
                     </div>
-                    <p><strong>السؤال:</strong> ${question.text || `سؤال متعدد الخيارات (علامتان) ${index + 1}`}</p>
-                    <p><strong>إجابتك:</strong> ${student.answers.mcq2Point[index] !== null ? question.options[student.answers.mcq2Point[index]] : 'لم تجب'}</p>
+                    <p><strong>السؤال:</strong> ${question.text}</p>
+                    <p><strong>إجابتك:</strong> ${studentAnswer}</p>
                     <p class="correct-answer"><strong>الإجابة الصحيحة:</strong> ${question.options[question.correctAnswer]}</p>
+                    ${!isCorrect ? `<p class="incorrect-answer"><strong>لقد خسرت:</strong> ${question.points} علامة</p>` : ''}
                 `;
                 answersContainer.appendChild(answerDiv);
             });
             
-            // Show essay answers
+            // Show essay answers with full marks
             examData.essayQuestions.forEach((question, index) => {
                 const answerDiv = document.createElement('div');
                 answerDiv.className = 'question-container';
                 answerDiv.innerHTML = `
                     <div class="question-header">
                         <div class="question-number">${index + 32}</div>
-                        <div class="question-points">مقالي</div>
+                        <div class="question-points correct-answer">+${question.points} علامة</div>
                     </div>
                     ${question.image ? `
                     <div class="question-image">
@@ -1809,19 +1405,20 @@
                     <p><strong>السؤال:</strong> ${question.text}</p>
                     <div class="essay-answer">
                         <strong>إجابتك:</strong><br>
-                        ${student.answers.essay[index] || 'لم تجب'}
+                        ${currentStudent.answers.essay[index] || 'لم تجب'}
                     </div>
+                    <p class="correct-answer"><strong>لقد حصلت على:</strong> ${question.points} علامة كاملة</p>
                 `;
                 answersContainer.appendChild(answerDiv);
             });
             
-            // Show final essay answer
+            // Show final essay answer with full marks
             const finalEssayDiv = document.createElement('div');
             finalEssayDiv.className = 'question-container';
             finalEssayDiv.innerHTML = `
                 <div class="question-header">
                     <div class="question-number">36</div>
-                    <div class="question-points">مقالي نهائي</div>
+                    <div class="question-points correct-answer">+${examData.finalEssay.points} علامة</div>
                 </div>
                 ${examData.finalEssay.image ? `
                 <div class="question-image">
@@ -1831,184 +1428,35 @@
                 <p><strong>السؤال:</strong> ${examData.finalEssay.text}</p>
                 <div class="essay-answer">
                     <strong>إجابتك:</strong><br>
-                    ${student.answers.finalEssay || 'لم تجب'}
+                    ${currentStudent.answers.finalEssay || 'لم تجب'}
                 </div>
+                <p class="correct-answer"><strong>لقد حصلت على:</strong> ${examData.finalEssay.points} علامة كاملة</p>
             `;
             answersContainer.appendChild(finalEssayDiv);
             
+            // Show summary
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = 'student-info-card';
+            summaryDiv.innerHTML = `
+                <h3>ملخص النتيجة</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">الأسئلة الاختيارية:</span>
+                        <span class="info-value">${mcqScore} / 31</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">الأسئلة المقالية:</span>
+                        <span class="info-value">${essayScore} / 7</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">المجموع الكلي:</span>
+                        <span class="info-value">${totalScore} / 50</span>
+                    </div>
+                </div>
+            `;
+            answersContainer.insertBefore(summaryDiv, answersContainer.firstChild);
+            
             showPage('results-page');
-        }
-        
-        // Show admin results
-        function refreshAdminResults() {
-            const tableBody = document.getElementById('admin-results-table');
-            tableBody.innerHTML = '';
-            
-            students.forEach(student => {
-                const row = document.createElement('tr');
-                const correctionStatus = student.essayGraded ? 'مصحح' : 'غير مصحح';
-                
-                row.innerHTML = `
-                    <td>${student.name}</td>
-                    <td>${student.id}</td>
-                    <td>${student.examCompleted ? student.mcqScore : 'لم يكمل'}</td>
-                    <td>${student.examCompleted ? student.essayScore : 'لم يكمل'}</td>
-                    <td>${student.examCompleted ? student.totalScore : 'لم يكمل'}</td>
-                    <td>${student.examCompleted ? correctionStatus : 'لم يكمل'}</td>
-                    <td>${student.examCompleted ? new Date(student.examFinished).toLocaleDateString('ar-EG') : 'لم يكمل'}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-        
-        // Toggle grade essays section
-        function toggleGradeEssays() {
-            const gradeSection = document.getElementById('grade-essays-section');
-            const isHidden = gradeSection.classList.contains('hidden');
-            
-            if (isHidden) {
-                generateEssaysToGrade();
-                gradeSection.classList.remove('hidden');
-            } else {
-                gradeSection.classList.add('hidden');
-            }
-        }
-        
-        // Generate essays to grade
-        function generateEssaysToGrade() {
-            const container = document.getElementById('essays-to-grade-container');
-            container.innerHTML = '';
-            
-            students.forEach(student => {
-                if (student.examCompleted && !student.essayGraded) {
-                    const studentDiv = document.createElement('div');
-                    studentDiv.className = 'student-info-card';
-                    studentDiv.innerHTML = `
-                        <h4>${student.name} - ${student.id}</h4>
-                        <div class="essays-list">
-                    `;
-                    
-                    // Add essay questions
-                    examData.essayQuestions.forEach((question, index) => {
-                        studentDiv.innerHTML += `
-                            <div class="question-container">
-                                <div class="question-header">
-                                    <div class="question-number">${index + 32}</div>
-                                    <div class="question-points">${question.points} علامة</div>
-                                </div>
-                                ${question.image ? `
-                                <div class="question-image">
-                                    <img src="${question.image}" alt="صورة السؤال المقالي ${index + 32}" onerror="this.style.display='none'">
-                                </div>
-                                ` : ''}
-                                <p><strong>السؤال:</strong> ${question.text}</p>
-                                <div class="essay-answer">
-                                    <strong>إجابة الطالب:</strong><br>
-                                    ${student.answers.essay[index] || 'لم يجب'}
-                                </div>
-                                <div class="form-group">
-                                    <label>التقدير (0-${question.points}):</label>
-                                    <input type="number" min="0" max="${question.points}" class="grade-input" 
-                                           id="grade-${student.id}-${question.id}" 
-                                           value="${student.essayGrades[index] || 0}">
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    // Add final essay question
-                    studentDiv.innerHTML += `
-                        <div class="question-container">
-                            <div class="question-header">
-                                <div class="question-number">36</div>
-                                <div class="question-points">${examData.finalEssay.points} علامة</div>
-                            </div>
-                            ${examData.finalEssay.image ? `
-                            <div class="question-image">
-                                <img src="${examData.finalEssay.image}" alt="صورة السؤال المقالي النهائي" onerror="this.style.display='none'">
-                            </div>
-                            ` : ''}
-                            <p><strong>السؤال:</strong> ${examData.finalEssay.text}</p>
-                            <div class="essay-answer">
-                                <strong>إجابة الطالب:</strong><br>
-                                ${student.answers.finalEssay || 'لم يجب'}
-                            </div>
-                            <div class="form-group">
-                                <label>التقدير (0-${examData.finalEssay.points}):</label>
-                                <input type="number" min="0" max="${examData.finalEssay.points}" class="grade-input" 
-                                       id="grade-${student.id}-final" 
-                                       value="${student.essayGrades[student.essayGrades.length - 1] || 0}">
-                            </div>
-                        </div>
-                    `;
-                    
-                    studentDiv.innerHTML += `</div>`;
-                    container.appendChild(studentDiv);
-                }
-            });
-            
-            if (container.innerHTML === '') {
-                container.innerHTML = '<p>لا توجد إجابات مقالية تحتاج للتصحيح.</p>';
-            }
-        }
-        
-        // Save essay grades
-        function saveEssayGrades() {
-            students.forEach(student => {
-                if (student.examCompleted && !student.essayGraded) {
-                    let totalEssayScore = 0;
-                    let allGraded = true;
-                    
-                    // Grade regular essay questions
-                    examData.essayQuestions.forEach((question, index) => {
-                        const gradeInput = document.getElementById(`grade-${student.id}-${question.id}`);
-                        if (gradeInput) {
-                            const grade = parseInt(gradeInput.value) || 0;
-                            student.essayGrades[index] = grade;
-                            totalEssayScore += grade;
-                        } else {
-                            allGraded = false;
-                        }
-                    });
-                    
-                    // Grade final essay question
-                    const finalGradeInput = document.getElementById(`grade-${student.id}-final`);
-                    if (finalGradeInput) {
-                        const finalGrade = parseInt(finalGradeInput.value) || 0;
-                        student.essayGrades[student.essayGrades.length - 1] = finalGrade;
-                        totalEssayScore += finalGrade;
-                    } else {
-                        allGraded = false;
-                    }
-                    
-                    if (allGraded) {
-                        student.essayScore = totalEssayScore;
-                        student.totalScore = student.mcqScore + totalEssayScore;
-                        student.essayGraded = true;
-                        
-                        // Save updated student to Firebase
-                        saveStudentToFirebase(student);
-                    }
-                }
-            });
-            
-            showNotification('تم حفظ التقديرات وتحديثها في قاعدة البيانات');
-            refreshAdminResults();
-            toggleGradeEssays();
-        }
-        
-        // Handle screenshot attempt
-        function handleScreenshotAttempt() {
-            alert('تم اكتشاف محاولة لالتقاط صورة للشاشة. سيتم إغلاق الاختبار.');
-            
-            // إغلاق الاختبار
-            clearInterval(examTimer);
-            
-            // حذف الطالب الحالي
-            currentStudent = null;
-            
-            // العودة للصفحة الرئيسية
-            showPage('welcome-page');
         }
         
         // Show specific page
