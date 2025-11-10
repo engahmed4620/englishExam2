@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة الامتحانات</title>
+    <title>منصة الامتحانات - متصلة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    
     <style>
         :root {
             --primary: #4361ee;
@@ -75,6 +80,24 @@
         .logo-text {
             font-size: 22px;
             font-weight: bold;
+        }
+        
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .connection-status.connected {
+            background-color: rgba(76, 201, 240, 0.3);
+        }
+        
+        .connection-status.disconnected {
+            background-color: rgba(230, 57, 70, 0.3);
         }
         
         .main-content {
@@ -526,6 +549,27 @@
             margin-left: 10px;
         }
         
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: var(--success);
+            color: white;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
         @media (max-width: 768px) {
             .timer {
                 position: relative;
@@ -546,6 +590,12 @@
             .admin-controls {
                 flex-direction: column;
             }
+            
+            .notification {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+            }
         }
     </style>
 </head>
@@ -556,9 +606,13 @@
             <div class="header">
                 <div class="logo">
                     <i class="fas fa-graduation-cap"></i>
-                    <div class="logo-text">منصة الامتحانات</div>
+                    <div class="logo-text">منصة الامتحانات - متصلة</div>
                 </div>
                 <div class="header-buttons">
+                    <div id="connection-status" class="connection-status">
+                        <i class="fas fa-wifi"></i>
+                        <span>جاري الاتصال...</span>
+                    </div>
                     <button id="admin-access-btn" class="btn btn-danger">
                         <i class="fas fa-cog"></i> دخول المسؤول
                     </button>
@@ -580,6 +634,10 @@
                             وهتقدر تشوفها بعد ما تخلص الامتحان ويتعلم المقالي  تدوس علي زرار نتيجتك الموجود جنب زرار بداء الاخبار وتكتب الرقم اللي سجلت بيه وانت داخل الامتحان
                          لو المقالي اتعلم هيظهرلك درجتك النهائية وكل اسئلتك اللي جاوبتها في الامتحان 
                         </p>
+                        <div class="sync-info">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>النتائج تظهر تلقائياً لدى المعلم بعد إنهاء الاختبار - لا حاجة لإرسالها يدوياً</span>
+                        </div>
                     </div>
                     
                     <div class="login-form">
@@ -744,9 +802,6 @@
                         <button id="grade-essays-btn" class="btn btn-warning">
                             <i class="fas fa-edit"></i> تصحيح المقالي
                         </button>
-                        <button id="export-results-btn" class="btn btn-success">
-                            <i class="fas fa-download"></i> تصدير النتائج
-                        </button>
                         <button id="back-to-admin-welcome" class="btn btn-danger">
                             <i class="fas fa-sign-out-alt"></i> العودة
                         </button>
@@ -754,7 +809,7 @@
                     
                     <div class="sync-info">
                         <i class="fas fa-info-circle"></i>
-                        <span>جميع نتائج الطلاب مخزنة محلياً على هذا الجهاز. لتصدير النتائج إلى جهاز آخر، استخدم زر "تصدير النتائج".</span>
+                        <span>جميع نتائج الطلاب متزامنة تلقائياً مع قاعدة البيانات المركزية. أي تحديث يتم حفظه فوراً.</span>
                     </div>
                     
                     <h3>نتائج الطلاب</h3>
@@ -790,6 +845,24 @@
             </div>
         </div>
     </div>
+
+    <!-- Firebase Configuration -->
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4wG6jDq6Xq6Xq6Xq6Xq6Xq6Xq6Xq6Xq6Xq6",
+            authDomain: "exam-platform-12345.firebaseapp.com",
+            databaseURL: "https://exam-platform-12345-default-rtdb.firebaseio.com",
+            projectId: "exam-platform-12345",
+            storageBucket: "exam-platform-12345.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef1234567890abcdef"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+    </script>
 
     <script>
         // Exam data - 36 questions (31 MCQ + 5 Essay)
@@ -1062,9 +1135,7 @@
         };
 
         // Student data storage
-        let students = JSON.parse(localStorage.getItem('examStudents')) || [];
-        
-        // Current student
+        let students = [];
         let currentStudent = null;
         
         // Exam timer
@@ -1078,9 +1149,13 @@
         const waitingPage = document.getElementById('waiting-page');
         const checkResultPage = document.getElementById('check-result-page');
         const adminPage = document.getElementById('admin-page');
+        const connectionStatus = document.getElementById('connection-status');
         
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Firebase connection
+            initializeFirebase();
+            
             // Header buttons
             document.getElementById('admin-access-btn').addEventListener('click', showAdminLogin);
             
@@ -1110,7 +1185,6 @@
             // Admin page
             document.getElementById('refresh-results-btn').addEventListener('click', refreshAdminResults);
             document.getElementById('grade-essays-btn').addEventListener('click', toggleGradeEssays);
-            document.getElementById('export-results-btn').addEventListener('click', exportResults);
             document.getElementById('back-to-admin-welcome').addEventListener('click', function() {
                 showPage('welcome-page');
             });
@@ -1139,6 +1213,91 @@
             // Auto-save student answers every 30 seconds
             setInterval(autoSaveStudentAnswers, 30000);
         });
+        
+        // Initialize Firebase and load data
+        function initializeFirebase() {
+            updateConnectionStatus('جاري الاتصال...', 'disconnected');
+            
+            // Listen for connection state changes
+            const connectedRef = firebase.database().ref(".info/connected");
+            connectedRef.on("value", function(snap) {
+                if (snap.val() === true) {
+                    updateConnectionStatus('متصل', 'connected');
+                    loadStudentsFromFirebase();
+                } else {
+                    updateConnectionStatus('غير متصل', 'disconnected');
+                }
+            });
+        }
+        
+        // Update connection status display
+        function updateConnectionStatus(text, status) {
+            connectionStatus.innerHTML = `<i class="fas fa-wifi"></i> <span>${text}</span>`;
+            connectionStatus.className = `connection-status ${status}`;
+        }
+        
+        // Load students from Firebase
+        function loadStudentsFromFirebase() {
+            const studentsRef = database.ref('students');
+            
+            studentsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                students = data ? Object.values(data) : [];
+                
+                // If we're on admin page, refresh the results
+                if (document.getElementById('admin-page').classList.contains('active')) {
+                    refreshAdminResults();
+                }
+                
+                showNotification('تم تحديث البيانات من السحابة');
+            });
+        }
+        
+        // Save students to Firebase
+        function saveStudentsToFirebase() {
+            const studentsRef = database.ref('students');
+            studentsRef.set(students)
+                .then(() => {
+                    console.log('تم حفظ البيانات في Firebase');
+                })
+                .catch((error) => {
+                    console.error('خطأ في حفظ البيانات:', error);
+                    // Fallback to localStorage if Firebase fails
+                    localStorage.setItem('examStudents', JSON.stringify(students));
+                });
+        }
+        
+        // Save student to Firebase (individual)
+        function saveStudentToFirebase(student) {
+            const studentRef = database.ref('students').child(student.id);
+            studentRef.set(student)
+                .then(() => {
+                    console.log('تم حفظ بيانات الطالب في Firebase');
+                })
+                .catch((error) => {
+                    console.error('خطأ في حفظ بيانات الطالب:', error);
+                });
+        }
+        
+        // Show notification
+        function showNotification(message) {
+            // Remove existing notification
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
         
         // Start exam function
         function startExam() {
@@ -1170,7 +1329,7 @@
                 // طالب جديد
                 currentStudent = createNewStudent(name, id);
                 students.push(currentStudent);
-                saveStudents();
+                saveStudentsToFirebase();
             }
             
             // Start exam
@@ -1184,7 +1343,7 @@
             return {
                 name: name,
                 id: id,
-                examStarted: new Date(),
+                examStarted: new Date().toISOString(),
                 examCompleted: false,
                 answers: {
                     mcq: Array(examData.mcqQuestions.length).fill(null),
@@ -1457,13 +1616,13 @@
             
             // Mark exam as completed
             currentStudent.examCompleted = true;
-            currentStudent.examFinished = new Date();
+            currentStudent.examFinished = new Date().toISOString();
             
             // Update student data
             const studentIndex = students.findIndex(s => s.id === currentStudent.id);
             if (studentIndex !== -1) {
                 students[studentIndex] = currentStudent;
-                saveStudents();
+                saveStudentToFirebase(currentStudent);
             }
             
             // Stop timer
@@ -1471,6 +1630,9 @@
             
             // Show waiting page instead of results
             showWaitingPage();
+            
+            // Show notification
+            showNotification('تم إرسال إجاباتك إلى قاعدة البيانات المركزية');
         }
         
         // Save student answers
@@ -1504,7 +1666,7 @@
             const studentIndex = students.findIndex(s => s.id === currentStudent.id);
             if (studentIndex !== -1) {
                 students[studentIndex] = currentStudent;
-                saveStudents();
+                saveStudentToFirebase(currentStudent);
             }
         }
         
@@ -1823,30 +1985,16 @@
                         student.essayScore = totalEssayScore;
                         student.totalScore = student.mcqScore + totalEssayScore;
                         student.essayGraded = true;
+                        
+                        // Save updated student to Firebase
+                        saveStudentToFirebase(student);
                     }
                 }
             });
             
-            saveStudents();
-            alert('تم حفظ التقديرات بنجاح.');
+            showNotification('تم حفظ التقديرات وتحديثها في قاعدة البيانات');
             refreshAdminResults();
             toggleGradeEssays();
-        }
-        
-        // Export results
-        function exportResults() {
-            const dataStr = JSON.stringify(students, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'exam_results.json';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            alert('تم تصدير النتائج إلى ملف JSON.');
         }
         
         // Handle screenshot attempt
@@ -1872,11 +2020,6 @@
             
             // Show requested page
             document.getElementById(pageId).classList.add('active');
-        }
-        
-        // Save students to localStorage
-        function saveStudents() {
-            localStorage.setItem('examStudents', JSON.stringify(students));
         }
     </script>
 </body>
