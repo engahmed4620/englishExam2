@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة الامتحانات  </title>
+    <title>منصة الامتحانات</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -512,6 +512,20 @@
             margin: 20px 0;
         }
         
+        .sync-info {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .sync-info i {
+            color: var(--primary);
+            margin-left: 10px;
+        }
+        
         @media (max-width: 768px) {
             .timer {
                 position: relative;
@@ -542,7 +556,7 @@
             <div class="header">
                 <div class="logo">
                     <i class="fas fa-graduation-cap"></i>
-                    <div class="logo-text">منصة الامتحانات  </div>
+                    <div class="logo-text">منصة الامتحانات</div>
                 </div>
                 <div class="header-buttons">
                     <button id="admin-access-btn" class="btn btn-danger">
@@ -559,7 +573,7 @@
                         <div class="welcome-icon">
                             <i class="fas fa-laptop-code"></i>
                         </div>
-                        <h1>الامتحان الشامل علي يونت 1 ويونت 2 </h1>
+                        <h1>الامتحان الشامل علي يونت 1 ويونت 2</h1>
                         <h2>تنويه هام</h2>
                         <p class="welcome-text">
                             اكتب اسمك ورقم تكون حافظه علشان تقدر تشوف اجاباتك وتشوف الاسئله اللي غلطت فيها  
@@ -594,7 +608,7 @@
                 
                 <!-- Exam Page -->
                 <div id="exam-page" class="page">
-                    <h1>اختبار الوحده الاولي والثانيه </h1>
+                    <h1>اختبار الوحده الاولي والثانيه</h1>
                     <p>مدة الاختبار: ساعتان | الدرجه الكلية: 50</p>
                     
                     <div class="progress-bar">
@@ -730,9 +744,17 @@
                         <button id="grade-essays-btn" class="btn btn-warning">
                             <i class="fas fa-edit"></i> تصحيح المقالي
                         </button>
+                        <button id="export-results-btn" class="btn btn-success">
+                            <i class="fas fa-download"></i> تصدير النتائج
+                        </button>
                         <button id="back-to-admin-welcome" class="btn btn-danger">
                             <i class="fas fa-sign-out-alt"></i> العودة
                         </button>
+                    </div>
+                    
+                    <div class="sync-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>جميع نتائج الطلاب مخزنة محلياً على هذا الجهاز. لتصدير النتائج إلى جهاز آخر، استخدم زر "تصدير النتائج".</span>
                     </div>
                     
                     <h3>نتائج الطلاب</h3>
@@ -1088,6 +1110,7 @@
             // Admin page
             document.getElementById('refresh-results-btn').addEventListener('click', refreshAdminResults);
             document.getElementById('grade-essays-btn').addEventListener('click', toggleGradeEssays);
+            document.getElementById('export-results-btn').addEventListener('click', exportResults);
             document.getElementById('back-to-admin-welcome').addEventListener('click', function() {
                 showPage('welcome-page');
             });
@@ -1112,6 +1135,9 @@
             
             // Update progress bar as user answers questions
             document.addEventListener('change', updateProgressBar);
+            
+            // Auto-save student answers every 30 seconds
+            setInterval(autoSaveStudentAnswers, 30000);
         });
         
         // Start exam function
@@ -1340,6 +1366,21 @@
                     
                     // Trigger change event for progress bar update
                     radio.dispatchEvent(new Event('change', { bubbles: true }));
+                    
+                    // Auto-save answer
+                    if (currentStudent) {
+                        saveStudentAnswers();
+                    }
+                });
+            });
+            
+            // Add event listeners for essay textareas
+            document.querySelectorAll('textarea').forEach(textarea => {
+                textarea.addEventListener('input', function() {
+                    // Auto-save essay answers
+                    if (currentStudent) {
+                        saveStudentAnswers();
+                    }
                 });
             });
         }
@@ -1458,6 +1499,21 @@
             
             // Save final essay answer
             currentStudent.answers.finalEssay = document.getElementById('essay-final').value;
+            
+            // Update student data in storage
+            const studentIndex = students.findIndex(s => s.id === currentStudent.id);
+            if (studentIndex !== -1) {
+                students[studentIndex] = currentStudent;
+                saveStudents();
+            }
+        }
+        
+        // Auto-save student answers
+        function autoSaveStudentAnswers() {
+            if (currentStudent && !currentStudent.examCompleted) {
+                saveStudentAnswers();
+                console.log('تم الحفظ التلقائي للإجابات');
+            }
         }
         
         // Load student progress
@@ -1775,6 +1831,22 @@
             alert('تم حفظ التقديرات بنجاح.');
             refreshAdminResults();
             toggleGradeEssays();
+        }
+        
+        // Export results
+        function exportResults() {
+            const dataStr = JSON.stringify(students, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'exam_results.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            alert('تم تصدير النتائج إلى ملف JSON.');
         }
         
         // Handle screenshot attempt
